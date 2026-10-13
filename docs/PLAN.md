@@ -1,5 +1,13 @@
 # Plano técnico
 
+## Alvo inicial
+
+- Arquitetura pretendida: Android ARM64 (`arm64-v8a`). Confirmar a ABI real do jogo, pois a arquitetura do celular não garante que o aplicativo instalado seja ARM64.
+- Topologia: dois celulares na mesma rede Wi-Fi.
+- Internet: não necessária para hospedar/entrar na sessão local.
+- Versão do GTA SA: desconhecida; identificar antes de implementar hooks, offsets ou estruturas nativas.
+- Root: não desejado; investigar e comprovar um caminho sem root.
+
 ## Arquitetura proposta
 
 ```text
@@ -19,13 +27,22 @@ Game runtime (entidades, transformações, animações)
 
 A integração nativa ainda é uma hipótese a validar. O app separado consegue provar a rede, mas não cria por si só personagens dentro do jogo.
 
-## Fase 0 — auditoria e definição de alvo
+## Fase 0 — identificar versão e auditar
 
-- [ ] Registrar a versão exata do GTA SA instalada e a origem legítima da instalação.
-- [ ] Identificar ABI(s) do `libGTASA.so`, versão do Android e permissões de carregamento/injeção disponíveis sem root.
+- [ ] Identificar o pacote real instalado e registrar `versionName`, `versionCode` e `primaryCpuAbi`.
+- [ ] Registrar a versão do Android e a ABI de `libGTASA.so`/`libGame.so`, conforme o binário efetivamente instalado.
 - [ ] Auditar as referências e suas licenças antes de reutilizar código.
 - [ ] Definir um único alvo inicial; não tentar suportar todas as versões simultaneamente.
-- [ ] Criar relatório de símbolos, imports, exports e hashes localmente; não publicar arquivos proprietários do jogo.
+- [ ] Criar relatório local de símbolos, imports, exports e hashes; não publicar arquivos proprietários do jogo.
+
+Com ADB e depuração USB autorizada, uma tentativa inicial é:
+
+```sh
+adb devices
+adb shell dumpsys package com.rockstargames.gtasa | grep -E 'versionName=|versionCode=|primaryCpuAbi='
+```
+
+Se o pacote não for encontrado, identificar o package name correto primeiro. Não compartilhar APK, OBB ou dados pessoais; apenas a versão e ABI relevantes.
 
 **Saída obrigatória:** relatório de compatibilidade e decisão fundamentada sobre o mecanismo de integração.
 
@@ -33,7 +50,7 @@ A integração nativa ainda é uma hipótese a validar. O app separado consegue 
 
 - [ ] Aplicativo Android mínimo com modos Host e Entrar.
 - [ ] Descoberta por UDP broadcast/multicast, com entrada manual por IP como fallback.
-- [ ] Sessão local sem internet; host e cliente na mesma rede Wi-Fi/hotspot.
+- [ ] Sessão local sem internet em dois celulares conectados ao mesmo Wi-Fi.
 - [ ] Mensagens de handshake com versão do protocolo e nonce da sessão.
 - [ ] Heartbeat, timeout, reconexão e encerramento limpo.
 - [ ] Testes automatizados do parser e teste manual em dois aparelhos.
