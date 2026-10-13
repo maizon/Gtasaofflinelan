@@ -4,9 +4,14 @@ Projeto experimental para investigar e desenvolver multiplayer local (LAN/Wi-Fi 
 
 > **Estado atual: scaffold inicial.** Este repositório ainda não contém integração funcional com o jogo, sincronização de jogadores nem APK. Não confunda o plano com funcionalidades implementadas.
 
-## Objetivo
+## Alvo inicial escolhido
 
-Permitir que dois ou mais dispositivos na mesma rede local joguem juntos, começando por uma prova de conceito de descoberta/conexão e sincronização de estado. O objetivo final é exibir jogadores remotos dentro do mundo do GTA SA Android, não apenas em uma tela de chat separada.
+- **Arquitetura desejada:** Android ARM64 (`arm64-v8a`).
+- **Teste inicial:** dois celulares na mesma rede Wi-Fi, sem internet.
+- **Versão do jogo:** ainda desconhecida; será identificada antes de qualquer hook, offset ou integração específica.
+- **Root:** não é requisito desejado; viabilidade sem root precisa ser comprovada.
+
+O primeiro marco será uma prova de conceito de rede local. Em seguida, a meta é exibir jogadores remotos dentro do mundo do jogo, não apenas em uma tela de chat separada.
 
 ## Princípios
 
@@ -19,12 +24,13 @@ Permitir que dois ou mais dispositivos na mesma rede local joguem juntos, começ
 
 ## Estado e próximas etapas
 
-1. **Auditoria** — estudar CoopAndreas e projetos SA-MP relacionados, registrando licença, plataforma, dependências, build e possibilidade real de reaproveitamento.
-2. **Inventário de compatibilidade** — identificar versão exata do GTA SA Android, ABI (`armeabi-v7a`/`arm64-v8a`), versão do Android e limitações de carregamento de código nativo.
-3. **Prova de conceito de rede** — criar host/cliente LAN independente do jogo, com descoberta, conexão, heartbeat, timeout e testes de dois dispositivos.
-4. **Protocolo** — definir mensagens versionadas, IDs de sessão/jogador, validação de pacotes e atualização de estado.
-5. **Integração no jogo** — somente após identificar pontos de entrada e estruturas corretas na versão-alvo; começar pela criação/atualização de um jogador remoto.
-6. **Expansão** — animações, veículos, combate e outros sistemas por etapas, com critérios de teste próprios.
+1. **Identificar a versão instalada** — coletar `versionName`, `versionCode` e ABI do pacote oficial em um dos celulares.
+2. **Auditoria** — estudar CoopAndreas e projetos SA-MP relacionados, registrando licença, plataforma, dependências, build e possibilidade real de reaproveitamento.
+3. **Inventário de compatibilidade** — registrar versão do Android e arquitetura do jogo; confirmar limitações de carregamento de código nativo.
+4. **Prova de conceito de rede** — criar host/cliente LAN independente do jogo, com descoberta, conexão, heartbeat, timeout e testes nos dois celulares.
+5. **Protocolo** — definir mensagens versionadas, IDs de sessão/jogador, validação de pacotes e atualização de estado.
+6. **Integração no jogo** — somente após identificar pontos de entrada e estruturas corretas na versão-alvo; começar pela criação/atualização de um jogador remoto.
+7. **Expansão** — animações, veículos, combate e outros sistemas por etapas, com critérios de teste próprios.
 
 ## Documentação
 
@@ -34,9 +40,16 @@ Permitir que dois ou mais dispositivos na mesma rede local joguem juntos, começ
 - [Matriz de testes](docs/TEST_PLAN.md)
 - [Estado do projeto](STATUS.md)
 
-## Requisitos para avançar
+## Como identificar a versão do jogo
 
-Precisamos registrar a versão exata do jogo instalada em cada dispositivo, arquitetura/ABI, versão do Android, fabricante/SoC e se é permitido usar uma biblioteca nativa carregada pelo jogo. Não publique APK/OBB nem dados privados do dispositivo no repositório.
+Se tiver ADB num computador com o celular conectado por USB e a depuração USB autorizada, execute:
+
+```sh
+adb devices
+adb shell dumpsys package com.rockstargames.gtasa | grep -E 'versionName=|versionCode=|primaryCpuAbi='
+```
+
+O nome do pacote pode variar conforme a edição. Se não retornar dados, confirme o identificador do pacote no aparelho. Não envie APK/OBB nem dados pessoais; basta compartilhar as linhas de versão e ABI. Também é possível abrir as informações do aplicativo e informar a versão exibida, mas isso pode não revelar a ABI.
 
 ## Licença
 
